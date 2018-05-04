@@ -29,11 +29,11 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String locale = request.getHeader("locale");
-        logger.info("---------------------------------locale= " + locale);
-        if (!StringUtils.isEmpty(locale)) {
-            ThreadLocalUtils.setLocalLanaguage(locale);
-        }
+//        String locale = request.getHeader("locale");
+//        logger.info("---------------------------------locale= " + locale);
+//        if (!StringUtils.isEmpty(locale)) {
+//            ThreadLocalUtils.setLocalLanaguage(locale);
+//        }
 
         TransLog transLog = initTransLog(request);
 
@@ -72,7 +72,7 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
 
     }
 
-    private TransLog initTransLog(HttpServletRequest request) throws Exception{
+    private TransLog initTransLog(HttpServletRequest request) throws Exception {
         TransLog transLog = new TransLog();
         String ip = request.getRemoteAddr();
         String serviceName = request.getRequestURI();
@@ -88,17 +88,16 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
             }
         }
 
-        if(serviceName.indexOf("checkToken")>0 && !StringUtils.hasText(transLog.getRedisMobile())){
-            throw new BusinessException("member.is.not.login") ;
+        if (serviceName.indexOf("checkToken") > 0 && !StringUtils.hasText(transLog.getRedisMobile())) {
+            throw new BusinessException("member.is.not.login");
         }
-
 
         String requestLocale = request.getHeader("locale");
-        if (StringUtils.hasText(requestLocale)) {
-            ThreadLocalUtils.setLocalLanaguage(requestLocale);
+        if (!StringUtils.hasText(requestLocale)) {
+            requestLocale = "china" ;
         }
-        else
-            ThreadLocalUtils.setLocalLanaguage("china");
+        ThreadLocalUtils.setLocalLanaguage(requestLocale);
+
         String userAgent = request.getHeader("User-Agent");
         String appNameEn = request.getHeader("appNameEn");
         String idfa = request.getHeader("idfa");
