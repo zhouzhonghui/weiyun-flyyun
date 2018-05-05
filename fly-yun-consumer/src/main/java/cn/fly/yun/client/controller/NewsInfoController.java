@@ -1,5 +1,6 @@
 package cn.fly.yun.client.controller;
 
+import cn.fly.yun.config.annotations.RedisLock;
 import cn.fly.yun.domain.*;
 import cn.fly.yun.handle.RedisHandle;
 import cn.fly.yun.service.NewsInfoService;
@@ -34,7 +35,7 @@ public class NewsInfoController {
     @Autowired
     MessageSourceAccessor messageSourceAccessor ;
 
-
+    @RedisLock(value = "21212",params = {"1212"},timeOut = 12)
     @RequestMapping(value = "/getNewsList", method = RequestMethod.POST, name = "查看资讯列表")
     GetNewsListRes getNewsList(@RequestBody GetNewsListReq req) throws Exception {
         GetNewsListRes res = newsInfoService.getNewsList(req);

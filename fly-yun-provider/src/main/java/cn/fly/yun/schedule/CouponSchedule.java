@@ -17,7 +17,7 @@ public class CouponSchedule {
     @Autowired
     CouponService couponService ;
 
-    @Scheduled(fixedRate = 900000000)
+//    @Scheduled(fixedRate = 900000000)
     public void addCoupon() {
         for(int i = 0;i<2800;i++) {
             try {
