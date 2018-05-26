@@ -17,6 +17,9 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Map;
 
 @Component
@@ -29,12 +32,16 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String locale = request.getHeader("locale");
-        logger.info("---------------------------------locale= " + locale);
-        if (!StringUtils.isEmpty(locale)) {
-            ThreadLocalUtils.setLocalLanaguage(locale);
+        /**
+         * 输出请求数据中header的内容
+         */
+        logger.info("getRequestURI================================" + request.getRequestURI());
+        Enumeration<String> enumeration = request.getHeaderNames();
+        while (enumeration.hasMoreElements()) {
+            String header = enumeration.nextElement();
+            String value = request.getHeader(header);
+            logger.info(header + ":" + value);
         }
-
         TransLog transLog = initTransLog(request);
 
         ThreadLocalUtils.setLocalTranslog(transLog);
@@ -67,17 +74,33 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
         ThreadLocalUtils.resetLocalLanaguage();
 
         /**
+         * 输出返回结果中header中的内容
+         */
+
+        logger.debug("" + response.getStatus());
+        Collection<String> collection = response.getHeaderNames();
+        Iterator<String> iterator = collection.iterator();
+        while (iterator.hasNext()) {
+            String header = iterator.next();
+            logger.debug(header + ":" + response.getHeader(header));
+        }
+        /**
          * 流水发送
          */
 
     }
 
-    private TransLog initTransLog(HttpServletRequest request) throws Exception{
+    private TransLog initTransLog(HttpServletRequest request) throws Exception {
         TransLog transLog = new TransLog();
         String ip = request.getRemoteAddr();
         String serviceName = request.getRequestURI();
         String token = request.getHeader("wybb-token");
+
         if (StringUtils.hasText(token)) {
+            if (token.indexOf(" ") > -1) {
+                token = token.replaceAll(" ", "+");
+                logger.debug("修改后的token值为===========" + token);
+            }
             String value = (String) redisHandle.get(token);
             if (StringUtils.hasText(value)) {
                 String[] strArr = value.split("_");
@@ -88,17 +111,17 @@ public class HeaderInterceptor extends HandlerInterceptorAdapter {
             }
         }
 
-        if(serviceName.indexOf("checkToken")>0 && !StringUtils.hasText(transLog.getRedisMobile())){
-            throw new BusinessException("member.is.not.login") ;
+        if (serviceName.indexOf("checkToken") > 0 && !StringUtils.hasText(transLog.getRedisMobile())) {
+            logger.debug("token====================================" + token);
+            throw new BusinessException("member.is.not.login");
         }
-
 
         String requestLocale = request.getHeader("locale");
-        if (StringUtils.hasText(requestLocale)) {
-            ThreadLocalUtils.setLocalLanaguage(requestLocale);
+        if (!StringUtils.hasText(requestLocale)) {
+            requestLocale = "china";
         }
-        else
-            ThreadLocalUtils.setLocalLanaguage("china");
+        ThreadLocalUtils.setLocalLanaguage(requestLocale);
+
         String userAgent = request.getHeader("User-Agent");
         String appNameEn = request.getHeader("appNameEn");
         String idfa = request.getHeader("idfa");
