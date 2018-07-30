@@ -64,7 +64,7 @@ public class NewsInfoController {
         return res;
     }
 
-    @RequestMapping(value = "/quotesTransaction/checkToken", method = RequestMethod.POST, name = "得到行情,token")
+    @RequestMapping(value = "/quotesTransaction", method = RequestMethod.POST, name = "得到行情,token")
     QuotesTransactionRes quotesTransaction(@RequestBody QuotesTransactionReq req) throws Exception {
         QuotesTransactionRes res = newsInfoService.quotesTransaction(req);
         return res;
