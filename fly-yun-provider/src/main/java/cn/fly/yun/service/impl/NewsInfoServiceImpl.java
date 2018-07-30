@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Service(version = "1.0.0", timeout = 60000, delay = -1, retries = 0)
+@Service(version = "1.0.0", timeout = 60000, delay = -1)
 public class NewsInfoServiceImpl implements NewsInfoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsInfoServiceImpl.class);
 
